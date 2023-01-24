@@ -17,12 +17,12 @@
         <label>Message</label>
         <InputText class="form-control" @bind-Value="newChatMessage.Message"></InputText>
     </div>
-    <button class="btn" type="submit">Send Message</button>
+    <button class="btn btn-primary" type="submit">Send Message</button>
 </EditForm>
-
+<hr />
 <ul>
     <Virtualize Items="Messages.OrderByDescending(m=>m.Time).ToList()" Context="message">
-        <li>@message.Name says @message.Message</li>
+        <li class="row"><label class="col-1">@message.Time.Hour:@message.Time.Minute</label><label class="col-2">@message.Name:</label><p class="col">@message.Message</p></li>
     </Virtualize>
 </ul>
 
