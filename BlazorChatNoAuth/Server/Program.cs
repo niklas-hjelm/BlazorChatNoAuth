@@ -1,3 +1,4 @@
+using BlazorChatNoAuth.Server.DataAccess.Repositories;
 using BlazorChatNoAuth.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 builder.Services.AddSignalR();
 
@@ -29,9 +32,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
 app.MapRazorPages();
+
+app.MapGet("/messages", async (IChatRepository repo) => await repo.GetAllMessages());
+
 app.MapHub<ChatHub>("/hubs/ChatHub");
+
 app.MapFallbackToFile("index.html");
 
 app.Run();

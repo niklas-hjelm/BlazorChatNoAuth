@@ -1,14 +1,14 @@
 ﻿@page "/chat"
 
-@using Microsoft.AspNetCore.SignalR.Client
-@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
 
 @inject NavigationManager _navigationManager
+@inject HttpClient _httpClient
 
 <h3>Chat</h3>
 
 <EditForm Model="newChatMessage" OnValidSubmit="SendMessage">
-    <DataAnnotationsValidator/>
+    <DataAnnotationsValidator />
     <div class="form-group">
         <label>Name</label>
         <InputText class="form-control" @bind-Value="newChatMessage.Name"></InputText>
@@ -20,47 +20,12 @@
     <button class="btn btn-primary" type="submit">Send Message</button>
 </EditForm>
 <hr />
-<ul>
+<div class="col"> 
     <Virtualize Items="Messages.OrderByDescending(m=>m.Time).ToList()" Context="message">
-        <li class="row"><label class="col-1">@message.Time.Hour:@message.Time.Minute</label><label class="col-2">@message.Name:</label><p class="col">@message.Message</p></li>
+        <li class="card bg-gradient border-3">
+            <label class="card-header text-primary text-lg-start">@message.Name</label>
+            <p class="card-body ">@message.Message</p>
+            <label class="card-footer text-primary text-lg-end">@message.Time.ToString("HH:mm")</label>
+        </li>
     </Virtualize>
-</ul>
-
-@code {
-    List<ChatMessage> Messages = new();
-    HubConnection hubConnection;
-    ChatMessage newChatMessage = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(_navigationManager.BaseUri + "hubs/ChatHub")
-            .Build();
-
-        hubConnection.On<string, string>("SendMessage", (name, message) =>
-        {
-            var chatMessage = new ChatMessage() {Name = name, Message = message};
-            Messages.Add(chatMessage);
-            StateHasChanged();
-        });
-        await hubConnection.StartAsync();
-    }
-
-    public class ChatMessage
-    {
-        [Required]
-        public string Name { get; set; }
-
-        [Required]
-        public string Message { get; set; }
-
-        public DateTime Time { get; set; } = DateTime.Now;
-    }
-
-    private async Task SendMessage()
-    {
-        await hubConnection.SendAsync("SendMessage", newChatMessage.Name, newChatMessage.Message);
-        newChatMessage.Message = string.Empty;
-    }
-
-}
+</div>

@@ -1,11 +1,20 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using BlazorChatNoAuth.Server.DataAccess.Repositories;
+using BlazorChatNoAuth.Shared;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BlazorChatNoAuth.Server.Hubs;
 
 public class ChatHub : Hub
 {
-    public async Task SendMessage(string name, string message)
+    private readonly IChatRepository _repo;
+
+    public ChatHub(IChatRepository repo)
     {
-        await Clients.All.SendAsync("SendMessage", name, message);
+        _repo = repo;
+    }
+    public async Task SendMessage(ChatMessage message)
+    {
+        await _repo.AddMessage(message);
+        await Clients.All.SendAsync("SendMessage", message);
     }
 }
